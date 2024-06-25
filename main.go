@@ -2,30 +2,18 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"net/http"
 )
 
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Hello World")
+}
+
 func main() {
-	c1 := make(chan string)
-	c2 := make(chan string)
+	mux := http.NewServeMux()
 
-	go func() {
-		time.Sleep(time.Second * 1)
-		c1 <- "one"
-	}()
+	mux.HandleFunc("/hello", helloHandler)
 
-	go func() {
-		time.Sleep(time.Second * 1)
-		c2 <- "two"
-	}()
-
-	for i := 0; i < 2; i++ {
-		fmt.Println("iteration", i)
-		select {
-		case msg1 := <-c1:
-			fmt.Println("received", msg1)
-		case msg2 := <-c2:
-			fmt.Println("received", msg2)
-		}
-	}
+	fmt.Println("Starting server at port 8080")
+	http.ListenAndServe(":8080", mux)
 }
